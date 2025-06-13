@@ -1,0 +1,224 @@
+@import url("//fonts.googleapis.com/css?family=Muli");
+
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #fafafa;
+    color: #414142;
+    font: 12pt "times new roman", sans-serif;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px; /* Add this to set top padding */
+  padding-bottom: 10px;
+  border-bottom: 1.5px solid #00000059;
+}
+
+.header {
+  text-align: center;
+}
+  
+h1 {
+    color: #0070C0;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.75rem;
+}
+
+#admin-node {
+    margin-top: -31px;
+}
+
+h2 {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+#summary {
+    margin-top: -20px;
+}
+h3 {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+#today-date {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-top: -0.1px;
+}
+
+* {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+.page-container {
+    width: 210mm;
+    min-height: auto;
+    padding: 0mm;
+    margin: 2mm auto;
+    border: 1px #d3d3d3 solid;
+    border-radius: 5px;
+    background: white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.page-inner {
+    padding: 2mm 10mm 10mm 10mm;
+    height: auto;
+}
+
+.page-inner p {
+    text-align: justify;
+    line-height: 1.15;
+}
+
+.page-inner table,
+.page-inner td,
+.page-inner th {
+    padding: 2mm;
+    border-collapse: collapse;
+    border: 1px solid #414142;
+}
+
+@page {
+    size: A4;
+    margin: 5mm 10mm 15mm 10mm;
+}
+
+@media print {
+
+    html,
+    body {
+        width: 210mm;
+        height: auto;
+    }
+
+    .page-container {
+        margin: 0;
+        border: initial;
+        border-radius: initial;
+        width: initial;
+        min-height: initial;
+        box-shadow: initial;
+        background: initial;
+        page-break-after: always;
+    }
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+  
+th, td {
+    /* padding: 8px; */
+    text-align: left;
+    /* border-bottom: 1px solid #DDD; */
+}
+
+th {
+    background-color: lightgray;
+}
+
+th:first-child, td:first-child {
+    font-weight: bold;
+}
+
+.esri-view .esri-view-surface--touch-none:focus::after {
+    outline: none !important;
+}
+
+/* .esri-legend__layer-caption {
+    display:none;
+} */
+
+.controls-container {
+    color: #414142;
+    background: #f1f1f2;
+    padding: 5px;
+    border: 1px solid #d1d3d4;
+    border-radius: 2px;
+    position: fixed;
+    top: 50px;
+    left: 10px;
+    font-size: 12px;
+}
+
+.controls-container button {
+    background-color: #333333;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    margin-bottom: 5px;
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.controls-container button:hover {
+    background-color: #0070C0;
+}
+
+@media print {
+    .controls-container {
+        display: none !important;
+    }
+}
+
+.map-container {
+    display: flex;
+    width: 100%;
+}
+
+.map-node {
+    display: flex;
+    flex: 70%;
+    height: 300px;
+}
+
+.legend-node {
+    flex: 30%;
+    height: 300px;
+}
+
+.content-row {
+    text-align: right;
+}
+
+.hazard-title {
+    padding-top: 50px;
+}
+
+@media print {
+  .page-break-print {
+    page-break-before: always;
+    break-before: page;
+    display: block;
+    /* min-height: 100vh;  <-- Try removing or commenting this out */
+  }
+  .page-break-print:first-of-type {
+    page-break-before: auto;
+    break-before: auto;
+  }
+}
+
+

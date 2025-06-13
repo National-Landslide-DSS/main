@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0 maximum-scale=1.0" />
+    <!-- ICON -->
+    <link rel="icon" href="./assets/favicon.ico" sizes="32x32" type="image/vnd.microsoft.icon">
+    <!-- TITLE -->
+    <title>Bhutan - Landslide Decision Support System</title>
+    <!-- META -->
+    <meta property="og:title" content="Bhutan - Landslide Decision Support System">
+    <meta property="og:description" content="The DSS provides landslide risk assessment and monitoring tools for Bhutan.">
+    <meta property="og:url" content="https://your-domain-here/apps/BTN/DSS/index.html">
+    <meta property="og:image" content="https://your-domain-here/apps/BTN/DSS/assets/app.png">
+
+    <!-- CHARTJS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+    <!-- FONT AWESOME -->
+    <link href="./assets/fontawesome-free-6.4.2-web/css/fontawesome.css" rel="stylesheet">
+    <link href="./assets/fontawesome-free-6.4.2-web/css/brands.css" rel="stylesheet">
+    <link href="./assets/fontawesome-free-6.4.2-web/css/solid.css" rel="stylesheet">
+
+    <!-- CALCITE -->
+    <script type="module" src="https://js.arcgis.com/calcite-components/2.6.0/calcite.esm.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/calcite-components/2.6.0/calcite.css"/>
+
+    <!-- ArcGIS API for JavaScript-->
+    <link href="https://js.arcgis.com/4.29/@arcgis/core/assets/esri/themes/light/main.css" rel="stylesheet"/>
+    <script src="https://js.arcgis.com/4.29/"></script>
+
+    <!-- APPLICATION -->
+    <link rel="stylesheet" type="text/css" href="./css/application.css">
+    <script type="module" src="./js/Application.js"></script>    
+  </head>
+  <body class="calcite-mode-light">
+    <calcite-shell>
+
+      <!-- HEADER -->
+      <calcite-navigation slot="header">
+        <calcite-action slot="navigation-action" compact>
+          <img src="./assets/cropped-RUB.png" style="width:50px;height:50px;" alt="Royal University of Bhutan">
+        </calcite-action>
+        <calcite-action slot="navigation-action" compact>
+          <img src="./assets/JNEC-Logo.png" style="width:50px;height:50px;" alt="Jigme Namgyel Engineering College">
+        </calcite-action>
+        <div slot="logo" class="header">
+          <h1>Bhutan Landslide Risk - Decision Support System</h1>
+          <p>The DSS provides contextual analysis of landslide hazards to support informed decision making.</p>
+        </div>
+        <calcite-action slot="content-end" id="app-share-action" appearance="transparent" scale="m" title="Share the content" text="Share the content" icon="link"></calcite-action>
+        <calcite-action slot="content-end" id="app-details-action" appearance="transparent" scale="m" title="App details" text="App details" icon="information"></calcite-action>
+        <div id="sign-in-container" slot="user" hidden></div>
+      </calcite-navigation>
+
+      <!-- LEFT PANEL -->
+      <calcite-shell-panel slot="panel-start" position="start" width-scale="m" collapsed="true">
+        <calcite-action-bar id="side-panel-action-bar" slot="action-bar">
+          <calcite-action text="Map" icon="layers" class="toggle-action" data-toggle="map" title="View map layers"></calcite-action>
+          <calcite-action text="Rank" icon="a-z-down" class="toggle-action" data-toggle="rank" title="View risk ranking"></calcite-action>
+          <calcite-action text="Basemap" icon="basemap" class="toggle-action" data-toggle="basemap" title="Change the Basemap"></calcite-action>
+          <calcite-action text="Add Data" icon="upload" class="toggle-action" data-toggle="upload-data" text="Upload data" title="Upload your data"></calcite-action>
+        </calcite-action-bar>
+
+        <!-- MAP CONTROL PANEL -->
+        <calcite-panel heading="Map Control" class="toggle-panel" data-toggle="map">
+          <calcite-block heading="Landslide Risk Layers" collapsible open>
+            <calcite-icon slot="icon" icon="layer-map"></calcite-icon>
+            <calcite-chip-group id="thematic-display" label="thematic-display" selection-mode="single-persist">
+              <calcite-chip icon="data-clock-chart" selected value="risk">
+                Landslide Risk Index
+              </calcite-chip>
+              <calcite-chip icon="rain-thunder" value="hz">
+                Landslide Hazard Index
+              </calcite-chip>
+              <calcite-chip icon="organization" value="vu">
+                Physical Vulnerability Index
+              </calcite-chip>
+              <calcite-chip icon="selection-x" value="ep">
+                Exposure Index
+              </calcite-chip>
+            </calcite-chip-group>
+          </calcite-block>
+
+          <calcite-block heading="Overlay Layers" collapsible>
+            <calcite-icon slot="icon" icon="analysis-overlay"></calcite-icon>
+            <div id="layer-list-container"></div>
+          </calcite-block>
+
+          <calcite-block heading="Legend" collapsible open>
+            <calcite-icon slot="icon" icon="legend"></calcite-icon>
+            <div id="legend-container"></div>
+          </calcite-block>
+        </calcite-panel>
+
+        <!-- RANK PANEL -->
+        <calcite-panel heading="Rank" class="toggle-panel" data-toggle="rank" hidden>
+          <calcite-block open>
+            <calcite-label>Rank areas by:</calcite-label>
+            <calcite-radio-button-group id="selectRankScore" name="selectRankScore" layout="vertical" scale="l">
+              <calcite-label layout="inline">
+                <calcite-radio-button value="risk-rank" checked></calcite-radio-button>
+                Risk Index
+              </calcite-label>
+              <calcite-label layout="inline">
+                <calcite-radio-button value="hz-rank"></calcite-radio-button>
+                Hazard Index
+              </calcite-label>
+              <calcite-label layout="inline">
+                <calcite-radio-button value="vu-rank"></calcite-radio-button>
+                Vulnerability Index
+              </calcite-label>
+              <calcite-label layout="inline">
+                <calcite-radio-button value="ep-rank"></calcite-radio-button>
+                Exposure Index
+              </calcite-label>
+            </calcite-radio-button-group>
+          </calcite-block>
+
+          <div class="calcite-panel-contents">
+            <calcite-block id="admin-rank-results" open loading></calcite-block>
+          </div>
+          <div slot="footer">
+            <calcite-pagination id="tablePager" start-item="1" page-size="10"></calcite-pagination>
+          </div>
+        </calcite-panel>
+
+        <!-- BASEMAP PANEL -->
+        <calcite-panel heading="Basemap" class="toggle-panel" data-toggle="basemap" hidden>
+          <div id="basemap-gallery-container"></div>
+        </calcite-panel>
+
+        <!-- ADD DATA PANEL -->
+        <calcite-panel heading="Add Data" class="toggle-panel" data-toggle="upload-data" hidden>
+          <div slot="header-actions-end">
+            <calcite-action icon="x" title="close panel" class="toggle-close" data-toggle="upload-data"></calcite-action>
+          </div>
+          <calcite-block open>
+            <calcite-label>The Add Data allows you to temporarily add a zipped shapefile to the app at run time.</calcite-label>
+            <calcite-label>
+              <form enctype="multipart/form-data" method="post" id="uploadForm">
+                <input type="file" name="file" id="inFile" accept=".zip" />
+              </form>
+            </calcite-label>
+            <calcite-label>
+              <li>A shapefile (.zip, ZIP archive containing the .shp, .shx, .dbf, and .prj files).</li>
+              <li>A maximum of 1000 features is allowed.</li>
+              <li>Compression formats other than a .zip archive are not supported.</li>
+            </calcite-label>
+            <calcite-button id="upload-btn" width="full" icon-start="upload" disabled>
+              Upload Data
+            </calcite-button>
+            <calcite-button id="remove-btn" width="full" icon-start="trash" appearance="outline" color="red">
+              Remove Uploaded Data
+            </calcite-button>
+            <calcite-loader id="upload-loader" type="indeterminate" scale="s" text="Uploading..." hidden></calcite-loader>
+          </calcite-block>
+        </calcite-panel>
+      </calcite-shell-panel>
+
+      <!-- CENTER MAP CONTAINER -->
+      <calcite-panel id="center-container">
+        <div id="view-container"></div>
+      </calcite-panel>
+
+      <!-- RIGHT PANEL - STATISTICS -->
+      <calcite-shell-panel slot="panel-end" id="panel-stats-end" position="end" collapsed="true" display-mode="dock" width-scale="m">
+        <div class="details-node-container">
+          <calcite-block open heading="LANDSLIDE RISK SUMMARY">
+            <calcite-icon scale="s" slot="icon" icon="chart-magnifying-glass"></calcite-icon>
+            <calcite-notice id="admin-name" open scale="s" hidden>
+              <div slot="title"></div>
+              <div slot="message"></div>
+            </calcite-notice>
+            <div id="admin-descriptive"></div>
+            <div>
+              <canvas id="dimensions-bar-chart"></canvas>
+            </div>
+          </calcite-block>
+
+          <!-- RISK INDICATORS -->
+          <calcite-block open heading="RISK INDICATORS">
+            <calcite-icon scale="s" slot="icon" icon="exclamation-mark-triangle"></calcite-icon>
+
+            <!-- SOCIAL INDICATOR -->
+            <h4>SOCIAL INDICATOR</h4>
+            <table class="table-risk-indicator">
+              <tbody>
+                <tr>
+                  <td><i class="fa-solid fa-person"></i></td>
+                  <td>Population (PHCB 2017)</td>
+                  <td id="total-population-label" class="details-label">--,--</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-mars"></i></td>
+                  <td>Male (PHCB 2017)</td>
+                  <td id="male-population-label" class="details-label">--,--</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-venus"></i></td>
+                  <td>Female (PHCB 2017)</td>
+                  <td id="female-population-label" class="details-label">--,--</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-baby"></i></td>
+                  <td>Children below 5 years old (PHCB 2017)</td>
+                  <td id="key1-label" class="details-label">--.-</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-person-cane"></i></td>
+                  <td>Elderly above 65 years old (PHCB 2017)</td>
+                  <td id="key2-label" class="details-label">--.-</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-people-roof"></i></td>
+                  <td>Households (PHCB 2017)</td>
+                  <td id="total-household-label" class="details-label">--,--</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-plug"></i></td>
+                  <td>HH without electricity (PHCB 2017)</td>
+                  <td id="key3-label" class="details-label">--.-</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-mobile"></i></td>
+                  <td>HH without mobile cellular (PHCB 2017)</td>
+                  <td id="key4-label" class="details-label">--.-</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- INFRASTRUCTURE INDICATOR -->
+            <h4>INFRASTRUCTURE INDICATOR</h4>
+            <table class="table-risk-indicator">
+              <tbody>
+                <tr>
+                  <td><i class="fa-solid fa-road"></i></td>
+                  <td>Roads (km)</td>
+                  <td id="risk-road-label" class="details-label">--.-</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-bridge"></i></td>
+                  <td>Bridges</td>
+                  <td id="risk-bridge-label" class="details-label">--,--</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-school"></i></td>
+                  <td>Schools</td>
+                  <td id="risk-school-label" class="details-label">--</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-hospital"></i></td>
+                  <td>Health Facilities</td>
+                  <td id="risk-health-label" class="details-label">--</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- ENVIRONMENTAL INDICATOR -->
+            <h4>ENVIRONMENTAL INDICATOR (NLCS_LULC_2020)</h4>
+            <table class="table-risk-indicator">
+              <tbody>
+                <tr>
+                  <td><i class="fa-solid fa-tree"></i></td>
+                  <td>Forest (km²)</td>
+                  <td id="risk-forest-label" class="details-label">--.-</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-mountain"></i></td>
+                  <td>Alpine Shrubs (km²)</td>
+                  <td id="risk-alpine-label" class="details-label">--.-</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-leaf"></i></td>
+                  <td>Shrubs (km²)</td>
+                  <td id="risk-shrub-label" class="details-label">--.-</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-seedling"></i></td>
+                  <td>Meadows (km²)</td>
+                  <td id="risk-meadow-label" class="details-label">--.-</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-tractor"></i></td>
+                  <td>Agriculture (km²)</td>
+                  <td id="risk-agri-label" class="details-label">--.-</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-city"></i></td>
+                  <td>Built-up (km²)</td>
+                  <td id="risk-builtup-label" class="details-label">--.-</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-layer-group"></i></td>
+                  <td>Non Built-up (km²)</td>
+                  <td id="risk-nonbuiltup-label" class="details-label">--.-</td>
+                </tr>
+                <tr>
+                  <td><i class="fa-solid fa-question"></i></td>
+                  <td>Other Areas (km²)</td>
+                  <td id="risk-other-label" class="details-label">--.-</td>
+                </tr>
+              </tbody>
+            </table>
+          </calcite-block>
+
+          <calcite-block open heading="GENERATE REPORT">
+            <calcite-icon scale="s" slot="icon" icon="file-report"></calcite-icon>
+            <calcite-label alignment="center">
+              <calcite-button id="create-report-btn" appearance="outline-fill" icon-start="file-pdf" href="" target="_blank">
+                Generate Risk Report
+              </calcite-button>
+            </calcite-label>
+          </calcite-block>
+        </div>
+      </calcite-shell-panel>
+
+      <!-- RIGHT PANEL - CHARTS -->
+      <calcite-shell-panel slot="panel-end" id="panel-chart-end" position="end" collapsed="true" display-mode="dock" width-scale="m">
+        <div class="details-node-container"></div>
+      </calcite-shell-panel>
+
+      <!-- ALERTS AND NOTIFICATIONS -->
+      <calcite-alert id="app-share-alert" slot="alerts" kind="success" icon="launch" placement="bottom" auto-close auto-close-duration="medium">
+        <div slot="message">Shareable link has been copied to the clipboard.</div>
+        <calcite-link slot="link" href="#" target="_blank" role="link" title="open in new tab">open in new tab</calcite-link>
+      </calcite-alert>
+      
+      <calcite-alert id="app-add-data" slot="alerts" kind="success" placement="bottom" auto-close auto-close-duration="medium">
+        <div slot="title"></div>
+        <div slot="message"></div>
+      </calcite-alert>
+
+      <calcite-alert id="app-notice" slot="alerts" kind="danger" placement="bottom" width="auto">
+        <div slot="title"></div>
+        <div slot="message"></div>
+      </calcite-alert>
+
+      <!-- APP DETAILS MODAL -->
+      <calcite-modal id="app-details-modal" slot="modals" kind="brand" scale="m" width="m" aria-labelledby="app-modal-title">
+        <h3 slot="header" id="app-modal-title" class="application-title">Bhutan Landslide Decision Support System</h3>
+        <div slot="content" class="application-description">
+          <p>This application provides tools for assessing and monitoring landslide risks across Bhutan.</p>
+          <p>Key features include:</p>
+          <ul>
+            <li>Landslide risk mapping and visualization</li>
+            <li>Population and infrastructure exposure analysis</li>
+            <li>Risk ranking by geographic areas</li>
+            <li>Reporting tools for risk communication</li>
+          </ul>
+        </div>
+        <calcite-chip slot="back" id="chip-beta" scale="s">
+          Version 1.0.0
+        </calcite-chip>
+        <div slot="secondary">
+          <calcite-label layout="inline">
+            <span>Hide on startup</span>
+            <calcite-checkbox id="hide-startup-checkbox"></calcite-checkbox>
+          </calcite-label>
+        </div>
+      </calcite-modal>
+    </calcite-shell>
+
+    <!-- LOADER -->
+    <calcite-loader id="app-loader" type="indeterminate" scale="l" text="Loading..."></calcite-loader>
+  </body>
+</html>

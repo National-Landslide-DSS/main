@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <!-- ICON -->
+    <link rel="icon" href="../assets/favicon.ico" sizes="32x32" type="image/vnd.microsoft.icon">
+    <!-- TITLE -->
+    <title>Bhutan - DSS Report</title>
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- CHARTJS -- https://www.chartjs.org/ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+    <!-- ArcGIS API for JavaScript-->
+    <link href="https://js.arcgis.com/4.28/@arcgis/core/assets/esri/themes/light/main.css" rel="stylesheet" />
+    <script src="https://js.arcgis.com/4.28/"></script>
+
+    <!-- APPLICATION -->
+    <link rel="stylesheet" type="text/css" href="./style.css">
+    <!-- <script type="module" src="./main.js"></script> -->
+    <script src="./main.js" defer></script>
+
+</head>
+
+<body>
+    <div class="controls-container">
+        <button id="btnPrint">Print Report</button>
+    </div>
+    <div class="main-container">
+        <div class="page-container">
+
+            <div class="page-inner">
+                <div class="report-header">
+                  <img src="../assets/JNEC-Logo.png" style="width:70px;height:70px; margin-right: 10px;" alt="JNEC Logo">
+                  <img src="../assets/cropped-RUB.png" style="width:70px;height:70px;" alt="Royal University of Bhutan">
+                  <h1>Landslide Risk Profile of Gewogs in Bhutan: A Summary Report</h1>
+                </div>
+                <div class="content-row">
+                    <h4 id="today-date"></h4>
+                </div>
+                <h1 id="admin-node"></h1>
+                <h2 id="summary">Summary</h2>
+                <p>
+                  The Landslide Risk Index rating for <b><span id="admin-sum-name"></span></b> is currently assessed as <b><span id="summary-class"></span></b>
+                  with a score of <b><span id="summary-score"></span> out of 10.</b> This rating reflects the level of landslide risk within the region when
+                  compared to other areas in Bhutan.
+                </p>
+                <p>
+                  The Landslide Risk Index is calculated based on three dimensions including hazard potential, physical vulnerability, and exposure which provide insight into the factors
+                  contributing to this rating.
+                </p>
+                <div>
+                  <canvas id="dimensions-bar-chart"></canvas>
+                </div>
+                <h2>Landslide Risk Index</h2>
+                <p>
+                  The Landslide Risk Index is a composite indicator, combining multiple
+                  indicators into three dimensions of risk: Hazard (likelihood of landslide events), 
+                  Vulnerability (the susceptibility of terrain and infrastructure to landslides), and 
+                  Exposure (population and assets at risk).
+                </p>
+                <div class="map-container">
+                  <div id="viewRisk" class="map-node"></div>
+                  <div id="legendRisk" class="legend-node"></div>
+                </div>
+                <p>
+                  The Risk index is assigned a score ranging from 0.0 to 10.0. Lower values on the index indicate a
+                  lower landslide risk, while higher values signify areas with greater landslide potential and impact. This scoring system is consistently
+                  applied at the dimension, category, and component levels as well.
+                </p>
+
+                <hr>
+                <!-- LANDSLIDE HAZARD -->
+                <div class="page-break-print">
+                  <h2>Landslide Hazard Index</h2>
+                  <p>
+                    The landslide hazard potential index rating is <b><span id="hz-class"></span> (<span id="hz-risk-score"></span>)</b> for <b><span id="hz-admin-name"></span></b>
+                    when compared to the rest of Bhutan.
+                  </p>
+                  <div class="map-container">
+                    <div id="viewHZ" class="map-node"></div>
+                    <div id="legendHZ" class="legend-node"></div>
+                  </div>
+                  <p>
+                    The Landslide Hazard Potential dimension assesses the likelihood of landslide occurrences based on the extreme precipitation susceptibility index and the landslide susceptibility index of Bhutan. 
+                    Areas with higher susceptibility and greater precipitation are more prone to landslides.
+                  </p>
+                  <div>
+                    <canvas id="hz-chart-node" width="320" height="320"></canvas>
+                  </div>
+                  <br>
+                  <table>
+                      <tr>
+                        <th>Hazard Indicator</th>
+                        <th>Score out of 10</th>
+                        <th>Source</th>
+                      </tr>
+                      <tr>
+                        <td>Landslide Susceptibility Index</td>
+                        <td id="hz-score1">-.-</td>
+                        <td>Gyeltshen, Chhetri and Dema (2024): Landslide Susceptibility Map</td>
+                      </tr>
+                      <tr>
+                        <td>Extreme Precipitation Susceptibility Index</td>
+                        <td id="hz-score2">-.-</td>
+                        <td>Google Earth Engine: Precipitation (CHIRPS)(2000-2024)</td>
+                      </tr>
+                  </table>
+                </div>
+
+                <hr>
+
+                <!-- PHYSICAL VULNERABILITY -->
+                <div class="page-break-print">
+                  <h2>Landslide Vulnerability Index</h2>
+                  <p>
+                    The physical vulnerability index rating is <b><span id="vu-class"></span> (<span id="vu-risk-score"></span>)</b> for <b><span id="vu-admin-name"></span></b>
+                    when compared to the rest of Bhutan.
+                  </p>
+                  <div class="map-container">
+                    <div id="viewVU" class="map-node"></div>
+                    <div id="legendVU" class="legend-node"></div>
+                  </div>
+                  <p>
+                    The Physical Vulnerability dimension evaluates how susceptible buildings and infrastructure are
+                    to damage from landslides. This includes assessment of building types, construction materials, and
+                    infrastructure resilience. Areas with more vulnerable structures and critical infrastructure in landslide-prone
+                    zones have higher vulnerability scores.
+                  </p>
+                  <div>
+                    <canvas id="vu-chart-node" width="320" height="320"></canvas>
+                  </div>
+                  <br>
+                  <table>
+                      <tr>
+                        <th>Vulnerability Indicator</th>
+                        <th>Value</th>
+                        <th>Source</th>
+                      </tr>
+                      <tr>
+                        <td>Total Households</td>
+                        <td id="vu-score1">-.-</td>
+                        <td>Bhutan Statistical Bureau: Population and Housing Census (2017)</td>
+                      </tr>
+                      <tr>
+                        <td>Reinforced Structures</td>
+                        <td id="vu-score2">-.-</td>
+                        <td>Bhutan Statistical Bureau: Population and Housing Census (2017)</td>
+                      </tr>
+                      <tr>
+                        <td>Non-reinforced Structures</td>
+                        <td id="vu-score3">-.-</td>
+                        <td>Bhutan Statistical Bureau: Population and Housing Census (2017)</td>
+                      </tr>
+                      <tr>
+                        <td>Bricks or Stone Structures</td>
+                        <td id="vu-score4">-.-</td>
+                        <td>Bhutan Statistical Bureau: Population and Housing Census (2017)</td>
+                      </tr>
+                      <tr>
+                        <td>Adobe Structures</td>
+                        <td id="vu-score5">-.-</td>
+                        <td>Bhutan Statistical Bureau: Population and Housing Census (2017)</td>
+                      </tr>
+                  </table>
+                </div>
+                
+                <hr>
+
+                <!-- EXPOSURE -->
+                <div class="page-break-print">
+                  <h2>Landslide Exposure Index</h2>
+                  <p>
+                    The exposure index rating is <b><span id="ep-class"></span> (<span id="ep-risk-score"></span>)</b> for <b><span id="ep-admin-name"></span></b>
+                    when compared to the rest of Bhutan.
+                  </p>
+                  <div class="map-container">
+                    <div id="viewEP" class="map-node"></div>
+                    <div id="legendEP" class="legend-node"></div>
+                  </div>
+                  <p>
+                    The Exposure dimension quantifies the population and assets that would be affected by landslide events.
+                    This includes residential populations and total households located in landslide-prone
+                    areas. Higher exposure values indicate greater potential human impact from landslides.
+                  </p>
+                  <div>
+                      <canvas id="ep-chart-node" width="320" height="320"></canvas>
+                  </div>
+                  <br>
+                  <table>
+                      <tr>
+                        <th>Exposure Indicator</th>
+                        <th>Score out of 10</th>
+                        <th>Source</th>
+                      </tr>
+                      <tr>
+                        <td>Population Density Index</td>
+                        <td id="ep-score1">-.-</td>
+                        <td>Bhutan Statistical Bureau: Population and Housing Census (2017)</td>
+                      </tr>
+                      <tr>
+                        <td>Household Density Index</td>
+                        <td id="ep-score2">-.-</td>
+                        <td>Bhutan Statistical Bureau: Population and Housing Census (2017)</td>
+                      </tr>
+                  </table>
+                  <div>
+                      <canvas id="ep-chart-node-2" width="320" height="320"></canvas>
+                  </div>
+                  <br>
+                  <table>
+                      <tr>
+                        <th>Exposure Indicator</th>
+                        <th>Value</th>
+                        <th>Source</th>
+                      </tr>
+                        <tr>
+                        <td>Male Population</td>
+                        <td id="ep-score3">-.-</td>
+                        <td>Bhutan Statistical Bureau: Population and Housing Census (2017)</td>
+                      </tr>
+                        <tr>
+                        <td>Female Population</td>
+                        <td id="ep-score4">-.-</td>
+                        <td>Bhutan Statistical Bureau: Population and Housing Census (2017)</td>
+                      </tr>
+                        <tr>
+                        <td>Population Below Age 5</td>
+                        <td id="ep-score5">-.-</td>
+                        <td>Bhutan Statistical Bureau: Population and Housing Census (2017)</td>
+                      </tr>
+                      <tr>
+                        <td>Population Above Age 65</td>
+                        <td id="ep-score6">-.-</td>
+                        <td>Bhutan Statistical Bureau: Population and Housing Census (2017)</td>
+                      </tr>
+                  </table>
+                </div>
+                <hr>
+
+                <!-- END SECTION -->
+                <h3>Disclaimer</h3>
+                <p>
+                  This landslide risk assessment is based on historical data and intended for decision support. 
+                  Field validation is advised before implementing any mitigation measures. Please consult local authorities for official guidance.
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
